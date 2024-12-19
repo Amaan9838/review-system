@@ -7,7 +7,7 @@ const { uploadFileToS3 } = require('../services/s3Service');
 
 exports.createReview = async (req, res) => {
     try {
-        const { customerId, customerName, orderId, productId, rating, comment } = req.body;
+        const { customerId, customerName, orderId, productId, rating, comment, merchantId } = req.body;
         const uploadedFiles = req.uploadedFiles || [];
 
         const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
@@ -31,12 +31,11 @@ exports.createReview = async (req, res) => {
             productId,
             rating,
             comment,
-            media
+            media,
+            merchantId
         });
 
         const savedReview = await newReview.save();
-        // console.log('Uploaded Files:', savedReview);
-
         res.status(201).json(savedReview);
     } catch (error) {
         console.error('Error creating review:', error);
@@ -119,3 +118,23 @@ exports.deleteReview = async (req, res) => {
     }
 };
 
+
+exports.getReviewsByMerchant = async (req, res) => {
+  try {
+      const userId = req.user.userId; // Assuming req.user contains the authenticated merchant's info
+console.log(userId);
+// Find the merchant associated with this user
+const merchant = await Merchant.findOne({ userId: userId });
+
+if (!merchant) {
+    return res.status(404).json({ message: 'Merchant not found' });
+}
+
+// Use the merchant's ID to find reviews
+const reviews = await Review.find({ merchantId: merchant._id });
+res.json(reviews);
+} catch (error) {
+console.error('Error fetching reviews by merchant:', error);
+res.status(500).json({ message: 'Server error' });
+}
+};

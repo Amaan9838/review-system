@@ -1,5 +1,6 @@
 // models/Review.js
 const mongoose = require('mongoose');
+const Merchant = require('../models/Merchant'); // Import the Merchant model
 
 const reviewSchema = new mongoose.Schema({
     customerId: { type: String, required: true },
@@ -23,6 +24,7 @@ const reviewSchema = new mongoose.Schema({
       date: Date,
       merchantName: String,
     },
+    merchantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant', required: true },
     date: { type: Date, default: Date.now }
 });
 

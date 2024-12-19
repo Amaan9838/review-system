@@ -5,6 +5,6 @@ const { authenticateJWT } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.post('/generate-key', createApiKey); // Generate new API key
+router.post('/generate-key', authenticateJWT, createApiKey); // Generate new API key
 
 module.exports = router;

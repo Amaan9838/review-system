@@ -3,8 +3,8 @@ const APIKey = require('../models/APIKey');
 const crypto = require('crypto');
 
 exports.createApiKey = async (req, res) => {
-    const { userId } = req.body;
-    
+    const userId = req.user.userId; // Assuming req.user contains the authenticated merchant's info
+    console.log(userId);
     try {
         const newApiKey = new APIKey({
             key: crypto.randomBytes(20).toString('hex'), // Generate a random API key

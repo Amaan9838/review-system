@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const APIKey = require('../models/APIKey'); // Model for storing API keys
+const Merchant = require('../models/Merchant'); // Import the Merchant model
 
 // Register a new user
 exports.register = async (req, res) => {
@@ -16,25 +17,40 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'Email already in use' });
         }
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create new user
-        const user = new User({
-            name,
-            email,
-            password: hashedPassword,
-            role // Can be 'merchant', 'customer', etc.
-        });
-
-        await user.save();
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const user = new User({
+                name,
+                email,
+                password: hashedPassword,
+                role
+            });
+    
+            const savedUser = await user.save();
+    
+            // If the user is a merchant, create a merchant entry
+            if (role === 'merchant') {
+                const merchant = new Merchant({
+                    name: name, // or another field if needed
+                    userId: savedUser._id
+                });
+    
+                await merchant.save();
+            }
+    
+            res.status(201).json({
+                message: "User created successfully",
+                userId: savedUser._id
+            });
+        } catch (error) {
+            console.log('Detailed error:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+            res.status(500).json({ message: 'Server error: ' + error.message });
+        }
+    };
+    
 // Login a user
 exports.login = async (req, res) => {
     const { email, password } = req.body;
@@ -113,29 +129,3 @@ exports.authorizeRole = (role) => (req, res, next) => {
     next();
 };
 
-exports.createUser = async (req, res) => {
-    const { name, email, password, role } = req.body;
-    
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({
-            name,
-            email,
-            password: hashedPassword,
-            role
-        });
-
-        const savedUser = await user.save();
-        res.status(201).json({
-            message: "User created successfully",
-            userId: savedUser._id
-        });
-    } catch (error) {
-        console.log('Detailed error:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({ message: 'Server error'+ error.message });
-    }
-};

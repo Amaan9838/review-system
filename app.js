@@ -20,6 +20,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log('Database connection error:', err));
 
+    
 // Routes
 app.use('/api/reviews', reviewRoutes);       // Review-related routes
 app.use('/api/auth', authRoutes);            // Authentication routes
