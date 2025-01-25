@@ -11,4 +11,4 @@ router.post('/register', register);
 // POST: Log in a user
 router.post('/login', login);
 
-module.exports = router;
+module.exports = router; 
