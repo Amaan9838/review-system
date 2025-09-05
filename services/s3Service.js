@@ -11,7 +11,7 @@ const s3 = new AWS.S3();
 
 const uploadFileToS3 = async (file) => {
     const params = {
-        Bucket: 'dokicollections',
+        Bucket: process.env.AWS_BUCKET_NAME,
         Key: `uploads/${Date.now()}-${file.originalname}`,
         Body: file.buffer,
         ContentType: file.mimetype

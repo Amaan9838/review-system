@@ -21,6 +21,26 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
     .catch((err) => console.log('Database connection error:', err));
 
     
+// Health check endpoint for Elastic Beanstalk
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Root route
+app.get('/', (req, res) => {
+    res.status(200).json({
+        message: 'Review System API is running',
+        version: '1.0.0',
+        endpoints: {
+            health: '/health',
+            reviews: '/api/reviews',
+            auth: '/api/auth',
+            merchants: '/api/merchants',
+            upload: '/api/upload'
+        }
+    });
+});
+
 // Routes
 app.use('/api/reviews', reviewRoutes);       // Review-related routes
 app.use('/api/auth', authRoutes);            // Authentication routes
